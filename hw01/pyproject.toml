@@ -1,0 +1,27 @@
+# pyproject.toml.jinja
+
+[project]
+name = "hw01"
+version = "0.1.0"
+description = "My new homework assignment."
+readme = "README.md"
+authors = [
+    { name = "My name", email = "my@email" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "structlog",
+    "rich",
+    "numpy",
+    "jax[cpu]",
+    "jaxlib",
+    "flax",
+    "colorama",
+]
+
+[project.scripts]
+hw01 = "hw01:main"
+
+[build-system]
+requires = ["uv_build>=0.8.3,<0.9.0"]
+build-backend = "uv_build"
