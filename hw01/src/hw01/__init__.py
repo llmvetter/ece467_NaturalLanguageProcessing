@@ -1,11 +1,7 @@
-import jax
-import numpy as np
-import optax
 import structlog
-from flax import nnx
 
 from .config import load_settings
-from .data import CorpusLoader, Article
+from .data import CorpusLoader
 from .logging import configure_logging
 from .model import Vectorizer, Classifier
 from .eval import Evaluator
@@ -28,7 +24,7 @@ def main() -> None:
 
     # Split dataset
     train_data, val_data = train_corpus.split(
-        val_ratio = settings.data.split,
+        val_ratio=settings.data.split,
     )
     if settings.training.mode == "test":
         train_data = train_corpus.articles
@@ -38,8 +34,8 @@ def main() -> None:
     val_tokens: list[str] = [article.tokens for article in val_data]
     val_labels: list[str] = [article.label for article in val_data]
 
-    log.info("Training data loaded", size = len(train_data))
-    log.info("Validation data loaded", size = len(val_data))
+    log.info("Training data loaded", size=len(train_data))
+    log.info("Validation data loaded", size=len(val_data))
 
     # Initialize the model
     vectorizer = Vectorizer()
@@ -47,13 +43,13 @@ def main() -> None:
 
     # Fit the vectorizer
     tfidf_matrix = vectorizer.fit(train_tokens)
-    log.info("Vectorizer fitted.", matrix_shape = type(tfidf_matrix))
-    log.info("Vectorizer Vocab Size", vocab = len(vectorizer.vocab))
+    log.info("Vectorizer fitted.", matrix_shape=type(tfidf_matrix))
+    log.info("Vectorizer Vocab Size", vocab=len(vectorizer.vocab))
 
     # Fit the classifier
     classifier.fit(
-        vectors = tfidf_matrix,
-        labels = train_labels,
+        vectors=tfidf_matrix,
+        labels=train_labels,
     )
     log.info("Classifier fitted.")
 
@@ -61,8 +57,8 @@ def main() -> None:
     val_vectors = vectorizer.transform(val_tokens)
     predictions = classifier(val_vectors)
     evaluator = Evaluator(
-        true_labels = val_labels,
-        predictions = predictions,
+        true_labels=val_labels,
+        predictions=predictions,
     )
 
     accuracy = evaluator.calculate_accuracy()
@@ -76,8 +72,7 @@ def main() -> None:
     )
 
     if settings.training.mode == "test":
-
-         # Load dataset
+        # Load test dataset
         log.info("Loading Test Corpus")
         test_corpus: CorpusLoader = CorpusLoader(
             labels_path=settings.data.test_labels_path,
@@ -86,16 +81,30 @@ def main() -> None:
         test_data = test_corpus.articles
         test_tokens: list[str] = [article.tokens for article in test_data]
         test_labels: list[str] = [article.label for article in test_data]
-
-        log.info("Test data loaded", size = len(train_data))
+        log.info("Test data loaded", size=len(train_data))
 
         test_vectors = vectorizer.transform(test_tokens)
         predictions = classifier(test_vectors)
         evaluator = Evaluator(
-            true_labels = test_labels,
-            predictions = predictions,
+            true_labels=test_labels,
+            predictions=predictions,
         )
         accuracy = evaluator.calculate_accuracy()
         log.info("Test Accuracy", metric="accuracy", value=accuracy)
 
-        # write to file
+        log.info(
+            "Writing final predictions to file", output_path=settings.data.output_path
+        )
+
+        output_lines = []
+        for article, predicted_label in zip(test_data, predictions):
+            output_line = f"{article.rel_path} {predicted_label}\n"
+            output_lines.append(output_line)
+
+        try:
+            with open(settings.data.output_path, "w", encoding="utf-8") as outfile:
+                outfile.writelines(output_lines)
+            log.info("Prediction file successfully written.")
+
+        except Exception as e:
+            log.error("Failed to write output file", error=str(e))

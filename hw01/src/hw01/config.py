@@ -1,6 +1,5 @@
-from pathlib import Path
 from importlib.resources import files
-from typing import Tuple, Literal
+from typing import Literal
 
 from pydantic import BaseModel
 from pydantic_settings import (
@@ -14,13 +13,17 @@ from pydantic_settings import (
 class DataSettings(BaseModel):
     """Settings for data generation."""
 
-    train_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus3_train.labels"
-    test_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus3_test.labels"
+    train_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus1_train.labels"
+    test_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus1_test.labels"
+    output_path: str = "/home/lenni/projects/nlp/hw01/output.txt"
     split: int = 0.2
+
 
 class TrainingSettings(BaseModel):
     """Settings for model training."""
-    mode: Literal["test", "eval"] = "eval"
+
+    mode: Literal["test", "eval"] = "test"
+
 
 class AppSettings(BaseSettings):
     """Main application settings."""
