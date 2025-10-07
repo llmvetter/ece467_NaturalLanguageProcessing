@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
 
 @dataclass
 class Article:
@@ -30,7 +30,7 @@ class CorpusLoader:
         self.corpus_path = Path(corpus_path)
         self.labels_path = Path(labels_path)
         self.stop_words = set(stopwords.words('english'))
-        self.stemmer = PorterStemmer()
+        self.lemmatizer = WordNetLemmatizer() 
         self.articles: List[Article] = []
 
     def _load_labels(self) -> Dict[str, str]:
@@ -63,23 +63,29 @@ class CorpusLoader:
         3. Lowercase.
         4. Remove non-alphabetic tokens (punctuation/numbers).
         5. Remove stopwords.
-        6. Stemming (simplest form of normalization).
+        6. Lemmatization (for normalization).
+        7. Add bigrams to increase vocab size.
         """
-        # 1. Clean (Remove leading/trailing spaces and internal non-standard whitespace)
         text = re.sub(r'\s+', ' ', text.strip())
-        
-        # 2. & 3. Tokenize and Lowercase
         tokens = word_tokenize(text.lower())
         
         processed_tokens = []
         for token in tokens:
-            # 4. Remove non-alphabetic tokens and 5. Stopword removal
             if token.isalpha() and token not in self.stop_words:
-                # 6. Stemming
-                stemmed_token = self.stemmer.stem(token)
-                processed_tokens.append(stemmed_token)
+                lemmatized_token = self.lemmatizer.lemmatize(token)
+                processed_tokens.append(lemmatized_token)
 
-        return processed_tokens
+        final_tokens = []
+        final_tokens.extend(processed_tokens)
+        
+        if len(processed_tokens) >= 2:
+            bigrams = [
+                f"{processed_tokens[i]}_{processed_tokens[i+1]}" 
+                for i in range(len(processed_tokens) - 1)
+            ]
+            final_tokens.extend(bigrams)
+
+        return final_tokens 
 
     def load_corpus(self):
         """
@@ -87,37 +93,14 @@ class CorpusLoader:
         :param articles_dir_name: Directory name (e.g., 'corpus1/train')
         :param labels_file_name: Labels file name (e.g., 'labels.txt')
         """
-        
-        # Ensure articles directory exists
-        if not self.corpus_path.is_dir():
-            print(f"Error: Article directory not found at {self.corpus_path}")
-            return
 
-        # 1. Load Labels
         labels_map = self._load_labels()
-        if not labels_map:
-            print("Cannot proceed without labels.")
-            return
 
         for article_path in self.corpus_path.glob('*.article'):
+
             doc_id = article_path.name
-            
-            # Check if we have a label for this article
-            if doc_id not in labels_map:
-                print(f"Warning: Skipping {doc_id} - no label found.")
-                continue
-
-            # Load the raw text
-            try:
-                raw_text = article_path.read_text(encoding='latin-1')
-            except Exception as e:
-                print(f"Error reading {doc_id}: {e}")
-                continue
-
-            # Preprocess the text
+            raw_text = article_path.read_text(encoding='latin-1')
             processed_tokens = self._preprocess_text(raw_text)
-
-            # Create and store the Article object
             article_object = Article(
                 doc_id=doc_id,
                 label=labels_map[doc_id],
