@@ -75,17 +75,7 @@ class CorpusLoader:
                 lemmatized_token = self.lemmatizer.lemmatize(token)
                 processed_tokens.append(lemmatized_token)
 
-        final_tokens = []
-        final_tokens.extend(processed_tokens)
-        
-        if len(processed_tokens) >= 2:
-            bigrams = [
-                f"{processed_tokens[i]}_{processed_tokens[i+1]}" 
-                for i in range(len(processed_tokens) - 1)
-            ]
-            final_tokens.extend(bigrams)
-
-        return final_tokens 
+        return processed_tokens
 
     def load_corpus(self):
         """
@@ -96,7 +86,7 @@ class CorpusLoader:
 
         labels_map = self._load_labels()
 
-        for article_path in self.corpus_path.glob('*.article'):
+        for article_path in self.corpus_path.glob('*'):
 
             doc_id = article_path.name
             raw_text = article_path.read_text(encoding='latin-1')

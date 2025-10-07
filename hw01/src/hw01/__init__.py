@@ -30,7 +30,7 @@ def main() -> None:
     train_tokens: list[str] = [article.tokens for article in train_data]
     train_labels: list[str] = [article.label for article in train_data]
     log.info("Type train_tokens", type = type(train_tokens))
-    log.info("Tyoe train_labels", type = type(train_labels))
+    log.info("Type train_labels", type = type(train_labels))
 
     # Initialize the model
     vectorizer = Vectorizer()
@@ -68,12 +68,11 @@ def main() -> None:
     )
 
     accuracy = evaluator.calculate_accuracy()
-    labels, conf_matrix = evaluator.get_labeled_confusion_matrix()
-    conf_matrix_list = conf_matrix.tolist()
     log.info("Model Accuracy", metric="accuracy", value=accuracy)
 
+    conf_matrix = evaluator.calculate_confusion_matrix()
     plot_confusion_matrix(
-        labels=labels,
+        labels=evaluator.label_names,
         conf_matrix=conf_matrix,
         accuracy=accuracy,
     )

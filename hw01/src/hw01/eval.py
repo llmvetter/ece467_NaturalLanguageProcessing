@@ -32,8 +32,8 @@ class Evaluator:
         for true_label, pred_label in zip(self.true_labels, self.predictions):
             true_idx = self.label_to_index.get(true_label)
             pred_idx = self.label_to_index.get(pred_label)
-                
-        return self.confusion_matrix
 
-    def get_labeled_confusion_matrix(self) -> Tuple[List[str], np.ndarray]:
-        return self.label_names, self.confusion_matrix
+            if true_idx is not None and pred_idx is not None:
+                self.confusion_matrix[true_idx, pred_idx] += 1
+
+        return self.confusion_matrix
