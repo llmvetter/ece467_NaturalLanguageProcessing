@@ -19,18 +19,27 @@ def main() -> None:
     log = structlog.get_logger()
     log.info("Settings loaded", settings=settings.model_dump())
 
-    # prompt loading destination
-    log.info("Loading Text Corpus")
+    # Load dataset
+    log.info("Loading Trainnig Corpus")
     train_corpus: CorpusLoader = CorpusLoader(
-        corpus_path=settings.data.train_corpus_path,
         labels_path=settings.data.train_labels_path,
     )
-    train_corpus.load_corpus()
-    train_data: list[Article] = train_corpus.articles
+    train_corpus.load()
+
+    # Split dataset
+    train_data, val_data = train_corpus.split(
+        val_ratio = settings.data.split,
+    )
+    if settings.training.mode == "test":
+        train_data = train_corpus.articles
+
     train_tokens: list[str] = [article.tokens for article in train_data]
     train_labels: list[str] = [article.label for article in train_data]
-    log.info("Type train_tokens", type = type(train_tokens))
-    log.info("Type train_labels", type = type(train_labels))
+    val_tokens: list[str] = [article.tokens for article in val_data]
+    val_labels: list[str] = [article.label for article in val_data]
+
+    log.info("Training data loaded", size = len(train_data))
+    log.info("Validation data loaded", size = len(val_data))
 
     # Initialize the model
     vectorizer = Vectorizer()
@@ -48,17 +57,6 @@ def main() -> None:
     )
     log.info("Classifier fitted.")
 
-    # Load the val data
-    val_corpus = CorpusLoader(
-        corpus_path=settings.data.train_corpus_path,
-        labels_path=settings.data.train_labels_path,
-    )
-    val_corpus.load_corpus()
-    val_data: list[Article] = val_corpus.articles
-    val_tokens: list[str] = [article.tokens for article in val_data]
-    val_labels: list[str] = [article.label for article in val_data]
-    log.info("Validation Data loaded", n_articles=len(val_data))
-
     # Predict the val data
     val_vectors = vectorizer.transform(val_tokens)
     predictions = classifier(val_vectors)
@@ -68,7 +66,7 @@ def main() -> None:
     )
 
     accuracy = evaluator.calculate_accuracy()
-    log.info("Model Accuracy", metric="accuracy", value=accuracy)
+    log.info("Eval Accuracy", metric="accuracy", value=accuracy)
 
     conf_matrix = evaluator.calculate_confusion_matrix()
     plot_confusion_matrix(
@@ -77,3 +75,27 @@ def main() -> None:
         accuracy=accuracy,
     )
 
+    if settings.training.mode == "test":
+
+         # Load dataset
+        log.info("Loading Test Corpus")
+        test_corpus: CorpusLoader = CorpusLoader(
+            labels_path=settings.data.test_labels_path,
+        )
+        test_corpus.load()
+        test_data = test_corpus.articles
+        test_tokens: list[str] = [article.tokens for article in test_data]
+        test_labels: list[str] = [article.label for article in test_data]
+
+        log.info("Test data loaded", size = len(train_data))
+
+        test_vectors = vectorizer.transform(test_tokens)
+        predictions = classifier(test_vectors)
+        evaluator = Evaluator(
+            true_labels = test_labels,
+            predictions = predictions,
+        )
+        accuracy = evaluator.calculate_accuracy()
+        log.info("Test Accuracy", metric="accuracy", value=accuracy)
+
+        # write to file
