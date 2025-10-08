@@ -5,6 +5,12 @@ This repository contains the implementation of a **Rocchia Tf-IDF Classifier** d
 
 The code is written mainly in python. I was developed using the WSL Integration(Ubuntu) on Windows 11. The required packages are defined in the pyproject.toml
 
+## Setup
+
+This repository makes use of NLTK and will need specific library components to be downloaded locally.
+This includes: wordnet, stopwords, punkt, punkt_tab, averaged_perceptron_tagger_en
+These need to be installed seperately into the virtual environment the repository is run in.
+
 ## Running the code
 First, set the parameters in the `config.py` file. Specifically, provide:
 

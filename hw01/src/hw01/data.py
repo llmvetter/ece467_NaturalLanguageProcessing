@@ -1,11 +1,26 @@
 import re
 import random
+import nltk
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Tuple
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, wordnet
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+
+
+# Helper
+def get_wordnet_pos(treebank_tag):
+    if treebank_tag.startswith("J"):
+        return wordnet.ADJ
+    elif treebank_tag.startswith("V"):
+        return wordnet.VERB
+    elif treebank_tag.startswith("N"):
+        return wordnet.NOUN
+    elif treebank_tag.startswith("R"):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN
 
 
 @dataclass
@@ -59,15 +74,17 @@ class CorpusLoader:
         3. Lowercase
         4. Remove non-alphabetic tokens (punctuation/numbers)
         5. Remove stopwords
-        6. Lemmatization (for normalization)
+        6. Lemmatization, pos dependent (for normalization)
         """
         text = re.sub(r"\s+", " ", text.strip())
         tokens = word_tokenize(text.lower())
+        tagged_tokens = nltk.pos_tag(tokens)
 
         processed_tokens = []
-        for token in tokens:
+        for token, tag in tagged_tokens:
             if token.isalpha() and token not in self.stop_words:
-                lemmatized_token = self.lemmatizer.lemmatize(token)
+                pos = get_wordnet_pos(tag)
+                lemmatized_token = self.lemmatizer.lemmatize(token, pos=pos)
                 processed_tokens.append(lemmatized_token)
         return processed_tokens
 
