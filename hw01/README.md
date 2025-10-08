@@ -1,9 +1,9 @@
 # Conventional Text Categorization Project (Fall 2024) 📚
 
 ## Overview
-This repository contains the implementation of a **Rocchia Tf-IDF Classifier** developed for **Natural Language Processing (NLP) - Fall 2025**.
+This repository contains the implementation of a **Rocchio Tf-IDF Classifier**.
 
-The code is written mainly in python. I was developed using the WSL Integration(Ubuntu) on Windows 11. The required packages are defined in the pyproject.toml
+The implementation was done in python. It was developed using the WSL Integration (Ubuntu) on Windows 11. The required packages are defined in the pyproject.toml
 
 ## Setup
 
@@ -38,7 +38,7 @@ The system uses the basic NLTK tokenizer which tokonizes the training and test d
 3. **Lowercase** Normalization step, lowercases all the tokens.
 4. Remove non-alphabetic tokens (punctuation/numbers)
 5. Remove stopwords using NLTK stopwords for english
-6. **Lemmatization** Further normalization step. Uses NLTK WordNetLemmatizer
+6. **Lemmatization** Further normalization step. Uses NLTK WordNetLemmatizer and POS specific lemmatization.
 
 The system uses the TF-IDF weighting scheme to create document vectors.
 During the tuning phase, the system was primarily evaluated on the validation sets for each corpus (which are dynamically created by splitting the training corpus). Experiments were run using the PorterStemmer, Using Bigrams and using Bigrams in combination with Mimimum word-counts per document as well as Maximum Vocabulary size (as the Bigram bloat up the vocab size significantly which leads to excessively large vectors).
