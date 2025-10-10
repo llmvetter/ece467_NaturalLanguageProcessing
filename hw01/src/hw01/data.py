@@ -61,8 +61,13 @@ class CorpusLoader:
 
                 if len(parts) >= 1:
                     rel_path = parts[0]
-                    label = parts[1]
                     doc_id = Path(rel_path).name
+
+                    if len(parts) == 1:
+                        label = "UNKNOWN"
+                    elif len(parts) >= 2:
+                        label = parts[1]
+
                     article_info.append((rel_path, doc_id, label))
         return article_info
 

@@ -13,9 +13,9 @@ from pydantic_settings import (
 class DataSettings(BaseModel):
     """Settings for data generation."""
 
-    train_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus1_train.labels"
-    test_labels_path: str = "/home/lenni/projects/nlp/hw01/data/corpus1_test.labels"
-    output_path: str = "/home/lenni/projects/nlp/hw01/output.txt"
+    train_labels_path: str = "/hw01/data/corpus1_train.labels"
+    test_data_path: str = "/hw01/data/corpus1_test.list"
+    output_path: str = "/hw01/output.txt"
     split: int = 0.2
 
 
