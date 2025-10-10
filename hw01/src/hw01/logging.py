@@ -2,8 +2,6 @@ import logging
 import os
 import sys
 from pathlib import Path
-
-import jax
 import numpy as np
 import structlog
 
@@ -15,11 +13,8 @@ class FormattedFloat(float):
 
 def custom_serializer_processor(logger, method_name, event_dict):
     for key, value in event_dict.items():
-        # Handle JAX arrays in addition to TF tensors
-        if hasattr(value, "numpy"):  # Covers TF tensors
+        if hasattr(value, "numpy"):
             value = value.numpy()
-        if isinstance(value, jax.Array):
-            value = np.array(value)
         if isinstance(value, (np.generic, np.ndarray)):
             value = value.item() if value.size == 1 else value.tolist()
         if isinstance(value, float):

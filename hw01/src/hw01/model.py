@@ -1,7 +1,7 @@
 import math
+import numpy as np
 from typing import List, Dict
 from collections import Counter, defaultdict
-import numpy as np
 
 
 class Vectorizer:
