@@ -1,11 +1,24 @@
-# Conventional Text Categorization Project (Fall 2024) 📚
+# Conventional Text Categorization Project (Fall 2024)
 
 ## Overview
 This repository contains the implementation of a **Rocchio Tf-IDF Classifier**.
 
 The implementation was done in python. It was developed using the WSL Integration (Ubuntu) on Windows 11. The required packages are defined in the pyproject.toml
 
-## Setup
+
+## 🚀 Getting Started
+
+Follow these steps to set up your environment.
+
+### Setup
+
+You'll need four tools: `uv` for Python environment management, `just` as a command runner
+
+-   **Install `uv`**: `uv` is an extremely fast Python package installer and resolver. Follow the [official installation
+instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+-   **Install `just`**: `just` is a handy command runner. See the [installation
+guide](https://just.systems/man/en/pre-built-binaries.html) for your platform.
 
 This repository makes use of NLTK and will need specific library components to be downloaded locally.
 This includes: wordnet, stopwords, punkt, punkt_tab, averaged_perceptron_tagger_en
