@@ -28,6 +28,7 @@ MANIFEST
 
 # directories
 data
+hw02/model
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
